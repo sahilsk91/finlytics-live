@@ -1,0 +1,52 @@
+# Local production-like run with Postgres (optional)
+# Usage:
+#   docker compose up --build        # builds backend + frontend via Docker
+#   docker compose up db             # just a Postgres for LOCAL dev with DATABASE_URL
+# For normal local dev (without docker), just run:
+#   cd finlytics-backend && python app.py   (uses SQLite)
+#   cd finlytics-frontend && npm run dev
+
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: finlytics
+      POSTGRES_PASSWORD: finlytics
+      POSTGRES_DB: finlytics
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U finlytics"]
+      interval: 5s
+      retries: 5
+
+  backend:
+    build: ./finlytics-backend
+    environment:
+      DATABASE_URL: postgresql://finlytics:finlytics@db:5432/finlytics?sslmode=disable
+      JWT_SECRET: local-dev-secret-change-in-prod
+      FRONTEND_URL: http://localhost:5173,http://localhost:3000
+      FLASK_ENV: production
+      PORT: 5000
+    ports:
+      - "5000:5000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    image: node:20-alpine
+    working_dir: /app
+    volumes:
+      - ./finlytics-frontend:/app
+      - /app/node_modules
+    command: sh -c "npm install && VITE_API_URL=http://localhost:5000/api npm run dev -- --host 0.0.0.0 --port 5173"
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
