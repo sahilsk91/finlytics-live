@@ -11,9 +11,24 @@ from routes.auth import require_auth
 admin_bp = Blueprint("admin", __name__)
 
 
+def _is_admin_user(user_id):
+    conn = get_db()
+    try:
+        r = conn.execute("SELECT is_admin FROM users WHERE id = ?", (user_id,)).fetchone()
+        if not r:
+            return False
+        v = r["is_admin"]
+        return bool(v) if not isinstance(v, int) else v == 1
+    finally:
+        conn.close()
+
+
 @admin_bp.route("/admin/overview", methods=["GET"])
 @require_auth
 def overview():
+    # Only admins
+    if not _is_admin_user(request.user_id):
+        return jsonify({"error": "forbidden — admin only"}), 403
     conn = get_db()
     try:
         users = conn.execute("SELECT id, name, email, created_at FROM users ORDER BY id").fetchall()
@@ -65,6 +80,8 @@ def overview():
 @admin_bp.route("/admin/users/<int:user_id>/transactions", methods=["GET"])
 @require_auth
 def user_transactions(user_id):
+    if not _is_admin_user(request.user_id):
+        return jsonify({"error": "forbidden — admin only"}), 403
     conn = get_db()
     try:
         u = conn.execute("SELECT id, name, email FROM users WHERE id = ?", (user_id,)).fetchone()

@@ -11,6 +11,12 @@ html, body, #root {
 body {
   @apply bg-paper text-ink font-sans antialiased;
 }
+.dark body {
+  @apply bg-ink-900 text-white;
+}
+.dark {
+  color-scheme: dark;
+}
 
 .tabular {
   font-variant-numeric: tabular-nums;

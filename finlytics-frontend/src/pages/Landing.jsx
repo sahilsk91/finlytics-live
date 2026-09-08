@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 
 function useInView(threshold = 0.15) {
   const ref = useRef(null);
@@ -95,6 +96,7 @@ function Feature({ k, title, desc, delay }) {
 
 export default function Landing() {
   const { user } = useAuth();
+  const { theme, toggle } = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -123,6 +125,9 @@ export default function Landing() {
           </nav>
 
           <div className="hidden md:flex items-center gap-2">
+            <button onClick={toggle} aria-label="Toggle theme" className="h-10 w-10 grid place-items-center rounded-full border border-border bg-surface hover:bg-paper dark:bg-ink-800 dark:border-white/10 dark:text-white transition-colors">
+              <span className="text-sm">{theme === "dark" ? "☀" : "☾"}</span>
+            </button>
             {user ? (
               <Link to="/dashboard" className="text-sm font-medium bg-ink-800 text-white rounded-full px-5 py-2.5 hover:bg-ink-900 hover:shadow-[0_8px_20px_rgba(16,24,39,0.18)] hover:-translate-y-px transition-all">Go to dashboard</Link>
             ) : (
@@ -147,17 +152,21 @@ export default function Landing() {
         </div>
 
         {menuOpen && (
-          <div className="md:hidden border-t border-border bg-surface animate-fade-in">
+          <div className="md:hidden border-t border-border bg-surface dark:bg-ink-800 animate-fade-in">
             <div className="px-4 py-4 space-y-1">
-              <a onClick={() => setMenuOpen(false)} href="#features" className="block px-4 py-3 rounded-xl text-sm font-medium text-ink hover:bg-paper">Features</a>
-              <a onClick={() => setMenuOpen(false)} href="#how" className="block px-4 py-3 rounded-xl text-sm font-medium text-ink hover:bg-paper">How it works</a>
-              <a href="https://github.com/sahilsk91/finlytics-live" target="_blank" rel="noreferrer" className="block px-4 py-3 rounded-xl text-sm font-medium text-ink hover:bg-paper">GitHub →</a>
-              <div className="h-px bg-border my-3" />
+              <a onClick={() => setMenuOpen(false)} href="#features" className="block px-4 py-3 rounded-xl text-sm font-medium text-ink dark:text-white hover:bg-paper dark:hover:bg-white/10">Features</a>
+              <a onClick={() => setMenuOpen(false)} href="#how" className="block px-4 py-3 rounded-xl text-sm font-medium text-ink dark:text-white hover:bg-paper dark:hover:bg-white/10">How it works</a>
+              <a href="https://github.com/sahilsk91/finlytics-live" target="_blank" rel="noreferrer" className="block px-4 py-3 rounded-xl text-sm font-medium text-ink dark:text-white hover:bg-paper dark:hover:bg-white/10">GitHub →</a>
+              <button onClick={toggle} className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium text-ink dark:text-white bg-paper dark:bg-white/10 border border-border dark:border-white/10">
+                <span>Theme</span>
+                <span>{theme === "dark" ? "☀ Light" : "☾ Dark"}</span>
+              </button>
+              <div className="h-px bg-border dark:bg-white/10 my-3" />
               {user ? (
                 <Link onClick={() => setMenuOpen(false)} to="/dashboard" className="block text-center bg-ink-800 text-white rounded-full px-5 py-3 font-medium">Go to dashboard</Link>
               ) : (
                 <div className="grid grid-cols-2 gap-3">
-                  <Link onClick={() => setMenuOpen(false)} to="/login" className="text-center bg-paper border border-border rounded-full px-5 py-3 text-sm font-medium">Log in</Link>
+                  <Link onClick={() => setMenuOpen(false)} to="/login" className="text-center bg-paper dark:bg-white/10 border border-border dark:border-white/10 rounded-full px-5 py-3 text-sm font-medium dark:text-white">Log in</Link>
                   <Link onClick={() => setMenuOpen(false)} to="/login" className="text-center bg-ledger-600 text-white rounded-full px-5 py-3 text-sm font-semibold">Create account</Link>
                 </div>
               )}

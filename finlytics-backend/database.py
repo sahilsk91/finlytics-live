@@ -63,6 +63,7 @@ CREATE TABLE IF NOT EXISTS users (
     name TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
     password_hash TEXT,
+    is_admin INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
@@ -70,12 +71,13 @@ CREATE TABLE IF NOT EXISTS uploads (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
     filename TEXT NOT NULL,
-    file_hash TEXT NOT NULL UNIQUE,
+    file_hash TEXT NOT NULL,
     uploaded_at TEXT NOT NULL DEFAULT (datetime('now')),
     rows_in_file INTEGER NOT NULL,
     rows_imported INTEGER NOT NULL,
     status TEXT NOT NULL CHECK (status IN ('success', 'failed', 'partial')),
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE(user_id, file_hash)
 );
 
 CREATE TABLE IF NOT EXISTS transactions (
@@ -103,6 +105,7 @@ CREATE TABLE IF NOT EXISTS users (
     name TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
     password_hash TEXT,
+    is_admin BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -110,11 +113,12 @@ CREATE TABLE IF NOT EXISTS uploads (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     filename TEXT NOT NULL,
-    file_hash TEXT NOT NULL UNIQUE,
+    file_hash TEXT NOT NULL,
     uploaded_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     rows_in_file INTEGER NOT NULL,
     rows_imported INTEGER NOT NULL,
-    status TEXT NOT NULL CHECK (status IN ('success', 'failed', 'partial'))
+    status TEXT NOT NULL CHECK (status IN ('success', 'failed', 'partial')),
+    UNIQUE(user_id, file_hash)
 );
 
 CREATE TABLE IF NOT EXISTS transactions (
@@ -301,24 +305,53 @@ def init_db():
                     END IF;
                 END $$;
             """)
+            # Migration: is_admin
+            cur.execute("""
+                DO $$ BEGIN
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns
+                        WHERE table_name='users' AND column_name='is_admin'
+                    ) THEN
+                        ALTER TABLE users ADD COLUMN is_admin BOOLEAN NOT NULL DEFAULT FALSE;
+                    END IF;
+                END $$;
+            """)
+            # Migration: uploads file_hash per-user (was global UNIQUE)
+            cur.execute("""
+                DO $$ BEGIN
+                    IF EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'uploads_file_hash_key') THEN
+                        ALTER TABLE uploads DROP CONSTRAINT uploads_file_hash_key;
+                    END IF;
+                    IF EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'uploads_file_hash_key') THEN
+                        DROP INDEX uploads_file_hash_key;
+                    END IF;
+                END $$;
+            """)
+            cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_uploads_user_file_hash ON uploads(user_id, file_hash)")
             conn.commit()
 
             # Seed demo user (with a known password for dev)
             from werkzeug.security import generate_password_hash
-            cur.execute("SELECT id, password_hash FROM users WHERE email = %s", ("demo@finlytics.app",))
+            cur.execute("SELECT id, password_hash, is_admin FROM users WHERE email = %s", ("demo@finlytics.app",))
             row = cur.fetchone()
             if not row:
                 cur.execute(
-                    "INSERT INTO users (name, email, password_hash) VALUES (%s, %s, %s)",
+                    "INSERT INTO users (name, email, password_hash, is_admin) VALUES (%s, %s, %s, TRUE)",
                     ("Demo User", "demo@finlytics.app", generate_password_hash("demo1234")),
                 )
                 conn.commit()
-            elif row.get("password_hash") is None:
-                # Existing demo account from before live auth — set its password
-                cur.execute(
-                    "UPDATE users SET password_hash = %s WHERE email = %s",
-                    (generate_password_hash("demo1234"), "demo@finlytics.app"),
-                )
+            else:
+                if row.get("password_hash") is None:
+                    cur.execute("UPDATE users SET password_hash = %s WHERE email = %s", (generate_password_hash("demo1234"), "demo@finlytics.app"))
+                    conn.commit()
+                if not row.get("is_admin"):
+                    cur.execute("UPDATE users SET is_admin = TRUE WHERE email = %s", ("demo@finlytics.app",))
+                    conn.commit()
+            # Promote ADMIN_EMAILS env
+            admin_emails = [e.strip().lower() for e in os.environ.get("ADMIN_EMAILS", "").split(",") if e.strip()]
+            for em in admin_emails:
+                cur.execute("UPDATE users SET is_admin = TRUE WHERE email = %s", (em,))
+            if admin_emails:
                 conn.commit()
             cur.close()
         finally:
@@ -333,29 +366,75 @@ def init_db():
             if "password_hash" not in cols:
                 conn.execute("ALTER TABLE users ADD COLUMN password_hash TEXT")
                 conn.commit()
+            # Migration: is_admin
+            cols = [r[1] for r in conn.execute("PRAGMA table_info(users)").fetchall()]
+            if "is_admin" not in cols:
+                conn.execute("ALTER TABLE users ADD COLUMN is_admin INTEGER NOT NULL DEFAULT 0")
+                conn.commit()
+            # Migration: uploads file_hash per-user
+            # Check if old table has UNIQUE(file_hash) alone
+            sql = conn.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name='uploads'").fetchone()
+            if sql and "file_hash TEXT NOT NULL UNIQUE" in sql["sql"]:
+                # Recreate with correct constraint
+                conn.execute("PRAGMA foreign_keys=OFF")
+                conn.executescript("""
+                    CREATE TABLE IF NOT EXISTS uploads_new (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        user_id INTEGER NOT NULL,
+                        filename TEXT NOT NULL,
+                        file_hash TEXT NOT NULL,
+                        uploaded_at TEXT NOT NULL DEFAULT (datetime('now')),
+                        rows_in_file INTEGER NOT NULL,
+                        rows_imported INTEGER NOT NULL,
+                        status TEXT NOT NULL CHECK (status IN ('success', 'failed', 'partial')),
+                        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                        UNIQUE(user_id, file_hash)
+                    );
+                    INSERT OR IGNORE INTO uploads_new (id, user_id, filename, file_hash, uploaded_at, rows_in_file, rows_imported, status)
+                        SELECT id, user_id, filename, file_hash, uploaded_at, rows_in_file, rows_imported, status FROM uploads;
+                    DROP TABLE uploads;
+                    ALTER TABLE uploads_new RENAME TO uploads;
+                    CREATE INDEX IF NOT EXISTS idx_uploads_user_id ON uploads(user_id);
+                """)
+                conn.execute("PRAGMA foreign_keys=ON")
+                conn.commit()
+            else:
+                # Ensure correct index exists
+                conn.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_uploads_user_file_hash ON uploads(user_id, file_hash)")
+                # Drop old global unique index if it exists separately
+                try:
+                    conn.execute("DROP INDEX IF EXISTS sqlite_autoindex_uploads_1")
+                except Exception:
+                    pass
+                conn.commit()
 
-            existing = conn.execute(
-                "SELECT id, password_hash FROM users WHERE email = ?", ("demo@finlytics.app",)
-            ).fetchone()
+            existing = conn.execute("SELECT id, password_hash, is_admin FROM users WHERE email = ?", ("demo@finlytics.app",)).fetchone()
             if not existing:
                 try:
                     from werkzeug.security import generate_password_hash
                     phash = generate_password_hash("demo1234")
                 except Exception:
                     phash = None
-                conn.execute(
-                    "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)",
-                    ("Demo User", "demo@finlytics.app", phash),
-                )
+                conn.execute("INSERT INTO users (name, email, password_hash, is_admin) VALUES (?, ?, ?, 1)", ("Demo User", "demo@finlytics.app", phash))
                 conn.commit()
-            elif existing["password_hash"] is None:
-                try:
-                    from werkzeug.security import generate_password_hash
-                    phash = generate_password_hash("demo1234")
-                    conn.execute("UPDATE users SET password_hash = ? WHERE email = ?", (phash, "demo@finlytics.app"))
+            else:
+                if existing["password_hash"] is None:
+                    try:
+                        from werkzeug.security import generate_password_hash
+                        phash = generate_password_hash("demo1234")
+                        conn.execute("UPDATE users SET password_hash = ? WHERE email = ?", (phash, "demo@finlytics.app"))
+                        conn.commit()
+                    except Exception:
+                        pass
+                if not existing["is_admin"]:
+                    conn.execute("UPDATE users SET is_admin = 1 WHERE email = ?", ("demo@finlytics.app",))
                     conn.commit()
-                except Exception:
-                    pass
+            # Promote ADMIN_EMAILS
+            admin_emails = [e.strip().lower() for e in os.environ.get("ADMIN_EMAILS", "").split(",") if e.strip()]
+            for em in admin_emails:
+                conn.execute("UPDATE users SET is_admin = 1 WHERE email = ?", (em,))
+            if admin_emails:
+                conn.commit()
         finally:
             conn.close()
 

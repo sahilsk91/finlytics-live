@@ -16,10 +16,18 @@ users_bp = Blueprint("users", __name__)
 
 def _user_to_dict(row):
     # row may be sqlite Row or dict (RealDictRow)
+    try:
+        is_admin = row["is_admin"]
+    except Exception:
+        try:
+            is_admin = row.get("is_admin", 0)
+        except Exception:
+            is_admin = 0
     return {
         "id": row["id"],
         "name": row["name"],
         "email": row["email"],
+        "is_admin": bool(is_admin) if not isinstance(is_admin, int) else bool(is_admin),
         "created_at": str(row["created_at"]) if row["created_at"] else None,
     }
 

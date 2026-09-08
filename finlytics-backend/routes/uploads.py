@@ -196,11 +196,11 @@ def create_upload():
             return jsonify({"error": "user not found"}), 404
 
         dup = conn.execute(
-            "SELECT * FROM uploads WHERE file_hash = ?", (file_hash,)
+            "SELECT * FROM uploads WHERE file_hash = ? AND user_id = ?", (file_hash, user_id)
         ).fetchone()
         if dup:
             return jsonify({
-                "error": "this exact file has already been imported",
+                "error": "you have already imported this exact file",
                 "existing_upload": _upload_to_dict(dup),
             }), 409
 
@@ -312,8 +312,7 @@ def create_upload():
         )
         upload_id = cur.lastrowid
         if not upload_id:
-            # Postgres fallback — fetch latest upload for this user/hash
-            row_tmp = conn.execute("SELECT id FROM uploads WHERE file_hash = ?", (file_hash,)).fetchone()
+            row_tmp = conn.execute("SELECT id FROM uploads WHERE file_hash = ? AND user_id = ?", (file_hash, user_id)).fetchone()
             upload_id = row_tmp["id"] if row_tmp else None
 
         conn.executemany(
