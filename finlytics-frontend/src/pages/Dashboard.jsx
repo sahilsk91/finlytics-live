@@ -180,15 +180,18 @@ export default function Dashboard() {
                 </tbody>
               </table>
             </div>
-            <div className="md:hidden divide-y divide-border">
-              {filtered.map((t) => (
-                <div key={t.id} className="p-4 flex flex-col gap-2">
+            <div className="md:hidden p-3 sm:p-4 bg-paper space-y-3">
+              {filtered.map((t, i) => (
+                <div key={t.id} className="bg-surface border border-border rounded-2xl p-4 flex flex-col gap-3 shadow-sm animate-fade-up" style={{ animationDelay: `${i * 30}ms` }}>
                   <div className="flex items-center justify-between gap-3">
-                    <span className="text-xs font-mono tabular text-muted">{t.date}</span>
+                    <span className="text-xs font-mono tabular font-medium text-muted bg-paper border border-border rounded-full px-2.5 py-1">{t.date}</span>
                     <CategoryBadge category={t.category} />
                   </div>
-                  <p className="text-sm font-medium text-ink leading-5">{t.description} {t.is_anomaly === 1 && <span className="text-amber text-xs">● flagged</span>}</p>
-                  <p className="text-right"><Money paise={t.amount} size="sm" /></p>
+                  <p className="text-[15px] font-medium text-ink leading-6">{t.description} {t.is_anomaly === 1 && <span className="ml-1 inline-flex items-center gap-1 text-amber text-xs font-semibold bg-amber/10 border border-amber/20 rounded-full px-2 py-0.5">● flagged</span>}</p>
+                  <div className="flex items-center justify-between pt-3 border-t border-border">
+                    <span className="text-[11px] tracking-[0.12em] uppercase font-semibold text-muted">Amount</span>
+                    <Money paise={t.amount} size="base" />
+                  </div>
                 </div>
               ))}
             </div>
