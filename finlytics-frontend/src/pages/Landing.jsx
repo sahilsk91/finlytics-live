@@ -211,17 +211,7 @@ export default function Landing() {
                   </Link>
                 </div>
 
-                <div className={`flex flex-wrap items-center gap-2 mt-6 ${mounted ? "animate-fade-up" : "opacity-0"}`} style={{ animationDelay: "460ms" }}>
-                  <span className="inline-flex items-center gap-1.5 bg-surface border border-border rounded-full px-3 py-1.5 text-xs font-medium shadow-sm hover:-translate-y-px hover:shadow-md hover:border-ink-800/10 transition-all cursor-default">
-                    <span className="h-1.5 w-1.5 rounded-full bg-ledger-600" /> UPI • POS • NEFT • IMPS
-                  </span>
-                  <span className="inline-flex items-center gap-1.5 bg-surface border border-border rounded-full px-3 py-1.5 text-xs font-medium shadow-sm hover:-translate-y-px hover:shadow-md hover:border-ink-800/10 transition-all cursor-default">
-                    <span className="h-1.5 w-1.5 rounded-full bg-amber" /> 10MB CSV • hash deduped
-                  </span>
-                  <span className="inline-flex items-center gap-1.5 bg-surface border border-border rounded-full px-3 py-1.5 text-xs font-medium shadow-sm hover:-translate-y-px hover:shadow-md hover:border-ink-800/10 transition-all cursor-default">
-                    <span className="h-1.5 w-1.5 rounded-full bg-mint" /> On-device ML
-                  </span>
-                </div>
+
 
                 <div className={`grid grid-cols-3 gap-3 mt-6 max-w-[520px] ${mounted ? "animate-fade-up" : "opacity-0"}`} style={{ animationDelay: "540ms" }}>
                   {[
