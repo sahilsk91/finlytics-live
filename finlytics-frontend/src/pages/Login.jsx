@@ -130,10 +130,6 @@ export default function Login() {
             </button>
           </form>
         </div>
-
-        <p className="text-center text-white/30 text-xs mt-6">
-          Demo: demo@finlytics.app / demo1234 <span className="text-white/20">(now password-protected)</span>
-        </p>
       </div>
     </div>
   );
