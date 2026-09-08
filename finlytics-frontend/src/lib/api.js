@@ -115,6 +115,10 @@ export const api = {
   getForecast: (userId) => request(`/forecast?user_id=${userId}`),
   scoreAnomalies: (userId) =>
     request("/transactions/score-anomalies", { method: "POST", body: JSON.stringify({ user_id: userId }) }),
+
+  // Admin
+  requestAdminOverview: () => request("/admin/overview"),
+  requestAdminUser: (id) => request(`/admin/users/${id}/transactions`),
 };
 
 export { BASE_URL, TOKEN_KEY };

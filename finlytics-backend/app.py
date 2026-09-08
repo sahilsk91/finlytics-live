@@ -24,6 +24,7 @@ from routes.users import users_bp
 from routes.transactions import transactions_bp
 from routes.uploads import uploads_bp
 from routes.forecast import forecast_bp
+from routes.admin import admin_bp
 
 SAVED_MODELS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ml", "saved_models")
 
@@ -74,6 +75,7 @@ def create_app():
     app.register_blueprint(transactions_bp, url_prefix="/api")
     app.register_blueprint(uploads_bp, url_prefix="/api")
     app.register_blueprint(forecast_bp, url_prefix="/api")
+    app.register_blueprint(admin_bp, url_prefix="/api")
 
     @app.route("/api/health", methods=["GET"])
     def health():

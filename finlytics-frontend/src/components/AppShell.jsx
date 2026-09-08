@@ -6,6 +6,7 @@ const NAV_ITEMS = [
   { to: "/dashboard", label: "Dashboard", icon: "◧" },
   { to: "/upload", label: "Upload", icon: "↑" },
   { to: "/insights", label: "Insights", icon: "◈" },
+  { to: "/admin", label: "Admin", icon: "⚙" },
 ];
 
 export default function AppShell({ children }) {
@@ -107,7 +108,7 @@ export default function AppShell({ children }) {
 
       {/* Mobile bottom nav */}
       <nav className="lg:hidden fixed bottom-0 inset-x-0 z-20 bg-surface border-t border-border">
-        <div className="grid grid-cols-3 h-[64px]">
+        <div className="grid grid-cols-4 h-[64px]">
           {NAV_ITEMS.map((item) => (
             <NavLink
               key={item.to}

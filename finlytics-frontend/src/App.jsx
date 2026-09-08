@@ -6,6 +6,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Upload from "./pages/Upload";
 import Insights from "./pages/Insights";
+import Admin from "./pages/Admin";
 
 export default function App() {
   return (
@@ -35,6 +36,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Insights />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <Admin />
               </ProtectedRoute>
             }
           />
