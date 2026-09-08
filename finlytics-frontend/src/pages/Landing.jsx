@@ -161,7 +161,6 @@ export default function Landing() {
                   <Link onClick={() => setMenuOpen(false)} to="/login" className="text-center bg-ledger-600 text-white rounded-full px-5 py-3 text-sm font-semibold">Create account</Link>
                 </div>
               )}
-              <p className="text-xs text-muted text-center pt-2">Demo: demo@finlytics.app / demo1234</p>
             </div>
           </div>
         )}
@@ -169,9 +168,11 @@ export default function Landing() {
 
       <main>
         <section ref={heroRef} className="relative overflow-hidden">
-          <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
             <div className="absolute inset-0 bg-[radial-gradient(900px_500px_at_18%_-8%,rgba(31,111,84,0.09),transparent_60%),radial-gradient(700px_400px_at_92%_12%,rgba(111,231,196,0.16),transparent_60%),radial-gradient(600px_300px_at_50%_100%,rgba(232,150,60,0.06),transparent_70%)]" />
             <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: `linear-gradient(to right, #14171F 1px, transparent 1px), linear-gradient(to bottom, #14171F 1px, transparent 1px)`, backgroundSize: "32px 32px" }} />
+            <div className="absolute -top-32 -right-32 w-[560px] h-[560px] bg-ledger-600/[0.07] rounded-full blur-[80px] animate-float hidden lg:block" />
+            <div className="absolute -bottom-32 -left-32 w-[640px] h-[640px] bg-amber/[0.06] rounded-full blur-[90px] animate-float hidden lg:block" style={{ animationDelay: "2s" }} />
             <div className="ledger-spine absolute left-4 sm:left-6 top-0 bottom-0 w-px opacity-40 hidden lg:block" />
             <div className="ledger-spine absolute right-4 sm:right-6 top-0 bottom-0 w-px opacity-40 hidden lg:block" />
           </div>
@@ -179,16 +180,13 @@ export default function Landing() {
           <div className="max-w-[1120px] mx-auto px-4 sm:px-6 pt-8 sm:pt-12 lg:pt-16 pb-8 sm:pb-10 relative">
             <div className="grid lg:grid-cols-[1.05fr_0.95fr] gap-8 lg:gap-10 items-start">
               <div className={`${mounted ? "animate-fade-up" : "opacity-0"}`} style={{ animationDelay: "80ms" }}>
-                <div className="inline-flex items-center gap-2 bg-ink-800 text-white rounded-full pl-1 pr-3 py-1 text-xs font-medium">
-                  <span className="bg-ledger-600 text-white rounded-full px-2 py-1 text-[10px] font-bold tracking-wide uppercase">New</span>
-                  <span className="tracking-wide">Live auth + online DB • JWT + Postgres ready</span>
-                  <span className="hidden sm:inline h-1 w-1 rounded-full bg-white/40" />
-                  <span className="hidden sm:inline text-white/70">Try the demo</span>
-                </div>
+                <p className="text-[11px] tracking-[0.18em] uppercase font-semibold text-ledger-600 flex items-center gap-2">
+                  <span className="h-px w-6 bg-ledger-600 hidden sm:block" /> Personal finance, understood
+                </p>
 
-                <h1 className="font-display text-[34px] sm:text-[48px] lg:text-[56px] leading-[0.9] tracking-[-0.025em] text-ink mt-6">
+                <h1 className="font-display text-[34px] sm:text-[48px] lg:text-[56px] leading-[0.9] tracking-[-0.025em] text-ink mt-4">
                   <span className="block overflow-hidden"><span className={`block ${mounted ? "animate-fade-up" : "opacity-0"}`} style={{ animationDelay: "140ms" }}>Know exactly</span></span>
-                  <span className="block overflow-hidden"><span className={`block ${mounted ? "animate-fade-up" : "opacity-0"}`} style={{ animationDelay: "220ms" }}>where it goes.</span></span>
+                  <span className="block overflow-hidden"><span className={`group inline-flex items-baseline gap-2 ${mounted ? "animate-fade-up" : "opacity-0"}`} style={{ animationDelay: "220ms" }}>where it goes.<span className="h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full bg-ledger-600 inline-block translate-y-[-2px] group-hover:scale-125 transition-transform" /></span></span>
                 </h1>
 
                 <p className={`text-[16px] sm:text-[17px] leading-7 text-muted mt-5 max-w-[48ch] ${mounted ? "animate-fade-up" : "opacity-0"}`} style={{ animationDelay: "300ms" }}>
@@ -196,27 +194,24 @@ export default function Landing() {
                 </p>
 
                 <div className={`flex flex-col sm:flex-row flex-wrap gap-3 mt-7 ${mounted ? "animate-fade-up" : "opacity-0"}`} style={{ animationDelay: "380ms" }}>
-                  <Link to="/login" className="inline-flex items-center justify-center gap-2 bg-ink-800 text-white text-[15px] font-semibold rounded-full px-7 py-3.5 hover:bg-ink-900 hover:shadow-[0_12px_28px_rgba(16,24,39,0.18)] hover:-translate-y-0.5 active:translate-y-0 transition-all">
-                    Create your account
-                    <span className="h-5 w-5 rounded-full bg-white/15 grid place-items-center text-xs">→</span>
+                  <Link to="/login" className="group inline-flex items-center justify-center gap-2 bg-ink-800 text-white text-[15px] font-semibold rounded-full px-7 py-3.5 hover:bg-ink-900 hover:shadow-[0_16px_32px_rgba(16,24,39,0.22)] hover:-translate-y-1 active:translate-y-0 transition-all relative overflow-hidden">
+                    <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                    <span className="relative">Create your account</span>
+                    <span className="relative h-5 w-5 rounded-full bg-white/15 group-hover:bg-white/20 grid place-items-center text-xs transition-colors">→</span>
                   </Link>
-                  <Link to="/login" className="inline-flex items-center justify-center bg-white border border-border text-ink text-[15px] font-medium rounded-full px-7 py-3.5 hover:bg-paper hover:border-ink-800/10 hover:-translate-y-0.5 transition-all">
+                  <Link to="/login" className="inline-flex items-center justify-center bg-white border border-border text-ink text-[15px] font-medium rounded-full px-7 py-3.5 hover:bg-paper hover:border-ink-800/10 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(16,24,39,0.06)] transition-all">
                     Log in
                   </Link>
                 </div>
-                <p className={`text-xs text-muted mt-3 flex items-center gap-2 ${mounted ? "animate-fade-in" : "opacity-0"}`} style={{ animationDelay: "520ms" }}>
-                  <span className="h-1.5 w-1.5 rounded-full bg-ledger-600 animate-pulse-dot" /> Demo: <span className="font-mono tabular font-medium text-ink">demo@finlytics.app / demo1234</span>
-                  <span className="hidden sm:inline text-muted">— seeded, private to you after import</span>
-                </p>
 
                 <div className={`flex flex-wrap items-center gap-2 mt-6 ${mounted ? "animate-fade-up" : "opacity-0"}`} style={{ animationDelay: "460ms" }}>
-                  <span className="inline-flex items-center gap-1.5 bg-surface border border-border rounded-full px-3 py-1.5 text-xs font-medium shadow-sm">
+                  <span className="inline-flex items-center gap-1.5 bg-surface border border-border rounded-full px-3 py-1.5 text-xs font-medium shadow-sm hover:-translate-y-px hover:shadow-md hover:border-ink-800/10 transition-all cursor-default">
                     <span className="h-1.5 w-1.5 rounded-full bg-ledger-600" /> UPI • POS • NEFT • IMPS
                   </span>
-                  <span className="inline-flex items-center gap-1.5 bg-surface border border-border rounded-full px-3 py-1.5 text-xs font-medium shadow-sm">
+                  <span className="inline-flex items-center gap-1.5 bg-surface border border-border rounded-full px-3 py-1.5 text-xs font-medium shadow-sm hover:-translate-y-px hover:shadow-md hover:border-ink-800/10 transition-all cursor-default">
                     <span className="h-1.5 w-1.5 rounded-full bg-amber" /> 10MB CSV • hash deduped
                   </span>
-                  <span className="inline-flex items-center gap-1.5 bg-surface border border-border rounded-full px-3 py-1.5 text-xs font-medium shadow-sm">
+                  <span className="inline-flex items-center gap-1.5 bg-surface border border-border rounded-full px-3 py-1.5 text-xs font-medium shadow-sm hover:-translate-y-px hover:shadow-md hover:border-ink-800/10 transition-all cursor-default">
                     <span className="h-1.5 w-1.5 rounded-full bg-mint" /> On-device ML
                   </span>
                 </div>
@@ -237,7 +232,7 @@ export default function Landing() {
               </div>
 
               <div className={`lg:pt-2 ${mounted ? "animate-scale-in" : "opacity-0"}`} style={{ animationDelay: "320ms" }}>
-                <div className="animate-float will-change-transform">
+                <div className="animate-float will-change-transform hover:[animation-play-state:paused] transition-transform">
                   <MockPreview />
                 </div>
                 <div className="grid grid-cols-2 gap-3 mt-3">
@@ -256,6 +251,12 @@ export default function Landing() {
                 </div>
                 <p className="text-xs text-muted mt-3 text-center">Preview data — your import looks identical, with your own categories.</p>
               </div>
+            </div>
+            <div className="hidden lg:flex absolute bottom-4 left-1/2 -translate-x-1/2 flex-col items-center gap-2">
+              <span className="text-[10px] tracking-[0.14em] uppercase font-semibold text-muted/40">Scroll</span>
+              <span className="h-10 w-px bg-border relative overflow-hidden rounded-full">
+                <span className="absolute inset-x-0 top-0 h-6 bg-ledger-600 rounded-full animate-[shimmer_1.6s_ease-in-out_infinite]" />
+              </span>
             </div>
           </div>
         </section>
