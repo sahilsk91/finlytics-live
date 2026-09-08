@@ -121,7 +121,6 @@ export default function Landing() {
           <nav className="hidden md:flex items-center gap-6 text-sm">
             <a href="#features" className="text-muted hover:text-ink transition-colors">Features</a>
             <a href="#how" className="text-muted hover:text-ink transition-colors">How it works</a>
-            <a href="https://github.com/sahilsk91/finlytics-live" target="_blank" rel="noreferrer" className="text-muted hover:text-ink transition-colors">GitHub</a>
           </nav>
 
           <div className="hidden md:flex items-center gap-2">
@@ -156,7 +155,6 @@ export default function Landing() {
             <div className="px-4 py-4 space-y-1">
               <a onClick={() => setMenuOpen(false)} href="#features" className="block px-4 py-3 rounded-xl text-sm font-medium text-ink dark:text-white hover:bg-paper dark:hover:bg-white/10">Features</a>
               <a onClick={() => setMenuOpen(false)} href="#how" className="block px-4 py-3 rounded-xl text-sm font-medium text-ink dark:text-white hover:bg-paper dark:hover:bg-white/10">How it works</a>
-              <a href="https://github.com/sahilsk91/finlytics-live" target="_blank" rel="noreferrer" className="block px-4 py-3 rounded-xl text-sm font-medium text-ink dark:text-white hover:bg-paper dark:hover:bg-white/10">GitHub →</a>
               <button onClick={toggle} className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium text-ink dark:text-white bg-paper dark:bg-white/10 border border-border dark:border-white/10">
                 <span>Theme</span>
                 <span>{theme === "dark" ? "☀ Light" : "☾ Dark"}</span>
@@ -300,7 +298,6 @@ export default function Landing() {
                 </ul>
                 <div className="flex flex-wrap gap-3 mt-7">
                   <Link to="/login" className="bg-white text-ink-800 text-sm font-semibold rounded-full px-6 py-3 hover:bg-paper hover:shadow-[0_8px_20px_rgba(255,255,255,0.15)] hover:-translate-y-0.5 transition-all">Create account</Link>
-                  <a href="https://github.com/sahilsk91/finlytics-live" target="_blank" rel="noreferrer" className="text-sm font-medium text-white/80 hover:text-white px-4 py-3 inline-flex items-center gap-1">View code <span>→</span></a>
                 </div>
               </div>
               <div className="bg-white/[0.06] backdrop-blur border-t lg:border-t-0 lg:border-l border-white/10 p-6 sm:p-8 lg:p-10">
@@ -351,11 +348,7 @@ export default function Landing() {
       <footer className="border-t border-border bg-paper">
         <div className="max-w-[1120px] mx-auto px-4 sm:px-6 h-14 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted">
           <span>© 2026 Finlytics • <span className="hidden sm:inline">Personal finance, understood.</span></span>
-          <span className="flex items-center gap-4">
-            <a href="https://github.com/sahilsk91/finlytics-live" target="_blank" rel="noreferrer" className="hover:text-ink transition-colors">GitHub</a>
-            <span className="hidden sm:inline h-1 w-1 rounded-full bg-border" />
-            <span className="hidden sm:inline">Made for UPI • POS • NEFT</span>
-          </span>
+          <span className="hidden sm:inline">Made for UPI • POS • NEFT</span>
         </div>
       </footer>
 
