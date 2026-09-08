@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { useTheme } from "../context/ThemeContext";
 
 const NAV_ITEMS = [
   { to: "/dashboard", label: "Dashboard", icon: "◧" },
@@ -12,7 +11,6 @@ const NAV_ITEMS = [
 
 export default function AppShell({ children }) {
   const { user, logout } = useAuth();
-  const { theme, toggle } = useTheme();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const isAdmin = !!user?.is_admin;
@@ -28,22 +26,17 @@ export default function AppShell({ children }) {
       <header className="lg:hidden sticky top-0 z-30 bg-ink-800 text-white border-b border-white/10">
         <div className="flex items-center justify-between px-4 h-[56px]">
           <span className="font-display text-xl tracking-tight">Finlytics</span>
-          <div className="flex items-center gap-2">
-            <button onClick={toggle} className="h-9 w-9 grid place-items-center rounded-full bg-white/10 hover:bg-white/15 transition-colors" aria-label="Toggle theme">
-              <span className="text-sm">{theme === "dark" ? "☀" : "☾"}</span>
-            </button>
-            <button
-              onClick={() => setMobileOpen(!mobileOpen)}
-              className="h-9 w-9 grid place-items-center rounded-full bg-white/10 hover:bg-white/15 transition-colors"
-              aria-label="Menu"
-            >
-              <span className="relative w-4 h-3 block">
-                <span className={`absolute left-0 w-full h-0.5 bg-white rounded-full transition-all ${mobileOpen ? "top-1.5 rotate-45" : "top-0"}`} />
-                <span className={`absolute left-0 top-1.5 w-full h-0.5 bg-white rounded-full transition-all ${mobileOpen ? "opacity-0" : "opacity-100"}`} />
-                <span className={`absolute left-0 w-full h-0.5 bg-white rounded-full transition-all ${mobileOpen ? "top-1.5 -rotate-45" : "top-3"}`} />
-              </span>
-            </button>
-          </div>
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="h-9 w-9 grid place-items-center rounded-full bg-white/10 hover:bg-white/15 transition-colors"
+            aria-label="Menu"
+          >
+            <span className="relative w-4 h-3 block">
+              <span className={`absolute left-0 w-full h-0.5 bg-white rounded-full transition-all ${mobileOpen ? "top-1.5 rotate-45" : "top-0"}`} />
+              <span className={`absolute left-0 top-1.5 w-full h-0.5 bg-white rounded-full transition-all ${mobileOpen ? "opacity-0" : "opacity-100"}`} />
+              <span className={`absolute left-0 w-full h-0.5 bg-white rounded-full transition-all ${mobileOpen ? "top-1.5 -rotate-45" : "top-3"}`} />
+            </span>
+          </button>
         </div>
         {mobileOpen && (
           <div className="border-t border-white/10 bg-ink-800 animate-fade-in">
@@ -101,14 +94,8 @@ export default function AppShell({ children }) {
             </NavLink>
           ))}
         </nav>
-        <div className="px-4 pb-6 pt-4 border-t border-white/10 space-y-3">
-          <button onClick={toggle} className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-sm text-white/60 hover:text-white hover:bg-white/5 transition-colors">
-            <span>Theme</span>
-            <span className="h-7 w-12 rounded-full bg-white/10 p-1 flex items-center transition-colors">
-              <span className={`h-5 w-5 rounded-full bg-white grid place-items-center text-[11px] transition-transform ${theme === "dark" ? "translate-x-5" : "translate-x-0"}`}>{theme === "dark" ? "☾" : "☀"}</span>
-            </span>
-          </button>
-          <div className="px-2">
+        <div className="px-4 pb-6 pt-4 border-t border-white/10">
+          <div className="px-2 mb-3">
             <p className="text-sm font-medium text-white truncate">{user?.name}</p>
             <p className="text-xs text-white/40 truncate">{user?.email}</p>
           </div>
@@ -121,7 +108,7 @@ export default function AppShell({ children }) {
       <main className="flex-1 min-w-0 pb-[72px] lg:pb-0">{children}</main>
 
       {/* Mobile bottom nav */}
-      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-20 bg-surface dark:bg-ink-800 border-t border-border dark:border-white/10">
+      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-20 bg-surface border-t border-border">
         <div className={`grid h-[64px] ${isAdmin ? "grid-cols-4" : "grid-cols-3"}`}>
           {NAV_ITEMS.filter((i) => i.to !== "/admin" || isAdmin).map((item) => (
             <NavLink
