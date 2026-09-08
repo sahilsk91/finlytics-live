@@ -14,9 +14,14 @@ function authHeader() {
   return t ? { Authorization: `Bearer ${t}` } : {};
 }
 
+function ngrokHeader() {
+  return BASE_URL.includes("ngrok-free.app") ? { "ngrok-skip-browser-warning": "true" } : {};
+}
+
 async function request(path, options = {}) {
   const headers = {
     "Content-Type": "application/json",
+    ...ngrokHeader(),
     ...authHeader(),
     ...(options.headers || {}),
   };
@@ -89,7 +94,7 @@ export const api = {
     formData.append("user_id", userId);
     formData.append("file", file);
 
-    const headers = { ...authHeader() };
+    const headers = { ...ngrokHeader(), ...authHeader() };
     const res = await fetch(`${BASE_URL}/uploads`, { method: "POST", headers, body: formData });
     let body = null;
     try {
